@@ -59,8 +59,16 @@ class DirectorSchema(Schema):
 
 
 movie_ns = api.namespace("/movies")
+director_ns = api.namespace("/directors")
+genre_ns = api.namespace("/genres")
+
 movie_schema = MovieSchema()
+director_schema = DirectorSchema()
+genre_schema = GenreSchema()
+
 movies_schema = MovieSchema(many=True)
+
+
 @movie_ns.route('/')
 class MoviesView(Resource):
     def get(self):
@@ -83,14 +91,47 @@ class MoviesView(Resource):
         return movies_schema.dump(all_movies), 200
 
 
-@movie_ns.route('/<int:mid>')
+@movie_ns.route('/<int:m_id>')
 class MovieView(Resource):
-    def get(self, mid):
-        movie = Movie.query.get(mid)
+    def get(self, m_id):
+        movie = Movie.query.get(m_id)
         return movie_schema.dump(movie), 200
 
 
+@director_ns.route('/')
+class DirectorsView(Resource):
+    def post(self):
+        req_ = request.json
+        dirs = Director(
+            id=req_.get("id"),
+            name=req_.get("name")
+        )
 
+        with db.session.begin():
+            db.session.add(dirs)
+        return f"{req_.get('id')} добавлен!", 201
+@director_ns.route('/<int:d_id>')
+class DirectorView(Resource):
+    def get(self, d_id):
+        director = Director.query.get(d_id)
+        return director_schema.dump(director), 200
+
+
+    def put(self, d_id):
+        req_json = request.json
+        director = Director.query.get(d_id)
+        director.name = req_json["name"]
+        db.session.commit()
+        return "", 204
+
+
+    def delete(self, d_id):
+        dir = Director.query.get(d_id)
+        if not dir:
+            return "", 404
+        db.session.delete(dir)
+        db.session.commit()
+        return "", 204
 
 if __name__ == '__main__':
     app.run(debug=True)
