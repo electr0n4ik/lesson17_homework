@@ -133,5 +133,42 @@ class DirectorView(Resource):
         db.session.commit()
         return "", 204
 
+
+@genre_ns.route('/')
+class GenresView(Resource):
+    def post(self):
+        req_ = request.json
+        genr = Genre(
+            id=req_.get("id"),
+            name=req_.get("name")
+        )
+
+        with db.session.begin():
+            db.session.add(genr)
+        return f"{req_.get('id')} добавлен!", 201
+@genre_ns.route('/<int:g_id>')
+class GenreView(Resource):
+    def get(self, g_id):
+        genre = Genre.query.get(g_id)
+        return genre_schema.dump(genre), 200
+
+
+    def put(self, g_id):
+        req_json = request.json
+        genre = Genre.query.get(g_id)
+        genre.name = req_json["name"]
+        db.session.commit()
+        return "", 204
+
+
+    def delete(self, g_id):
+        genre = Genre.query.get(g_id)
+        if not genre:
+            return "", 404
+        db.session.delete(genre)
+        db.session.commit()
+        return "", 204
+
+
 if __name__ == '__main__':
     app.run(debug=True)
