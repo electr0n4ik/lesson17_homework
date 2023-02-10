@@ -69,10 +69,13 @@ class MoviesView(Resource):
             query = db.session.query(Movie).filter(Movie.director_id == director_id_request).all()
             return movies_schema.dump(query)
 
+        elif request.values.get("genre_id") != None:
+            genre_id_request = int(request.values.get("genre_id"))
+            query = db.session.query(Movie).filter(Movie.genre_id == genre_id_request)
+            return movies_schema.dump(query)
 
         all_movies = Movie.query.all()
         return movies_schema.dump(all_movies), 200
-
 
 
 @movie_ns.route('/<int:mid>')
