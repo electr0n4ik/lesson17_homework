@@ -64,14 +64,19 @@ movies_schema = MovieSchema(many=True)
 @movie_ns.route('/')
 class MoviesView(Resource):
     def get(self):
-        if request.values.get("director_id") != None:
+        if request.values.get("genre_id") != None and request.values.get("director_id") != None:
+            d_id, g_id = int(request.values.get("director_id")), int(request.values.get("genre_id"))
+            query = db.session.query(Movie).filter(Movie.director_id == d_id, Movie.genre_id == g_id).all()
+            return movies_schema.dump(query)
+
+        elif request.values.get("director_id") != None:
             director_id_request = int(request.values.get("director_id"))
             query = db.session.query(Movie).filter(Movie.director_id == director_id_request).all()
             return movies_schema.dump(query)
 
         elif request.values.get("genre_id") != None:
             genre_id_request = int(request.values.get("genre_id"))
-            query = db.session.query(Movie).filter(Movie.genre_id == genre_id_request)
+            query = db.session.query(Movie).filter(Movie.genre_id == genre_id_request).all()
             return movies_schema.dump(query)
 
         all_movies = Movie.query.all()
