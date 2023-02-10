@@ -267,9 +267,9 @@ for director in data["directors"]:
         db.session.add(d)
 
 for genre in data["genres"]:
-    d = Genre(
+    g = Genre(
         id=genre["pk"],
         name=genre["name"],
     )
     with db.session.begin():
-        db.session.add(d)
+        db.session.add(g)
